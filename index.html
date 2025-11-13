@@ -83,43 +83,38 @@ let products = [
   {id:2,categoria:"Bebidas",nome:"Coca de 2 litros",descricao:"Refrigerante coca cola de 2 litros",preco:12.00,imagem:"coca-grande.jpg"}
 ];
 
-// API do Vercel - Estoque Online
-const API_URL = '/api/estoque';
+// Google Sheets como banco
+const SHEET_ID = '146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
-// Buscar estoque
 async function carregarEstoque() {
   try {
-    const response = await fetch(API_URL);
-    const estoque = await response.json();
+    const response = await fetch(SHEET_URL);
+    const text = await response.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    
+    const estoque = {};
+    json.table.rows.forEach((linha, index) => {
+      const id = linha.c[0]?.v || (index + 1);
+      const quantidade = linha.c[1]?.v || 10;
+      estoque[id] = quantidade;
+    });
+    
     products.forEach(p => {
       p.estoque = estoque[p.id] || 10;
     });
-    
   } catch (error) {
     products.forEach(p => {
       p.estoque = 10;
     });
   }
-  }
-
-async function salvarEstoque() {
-  const estoque = {};
-  products.forEach(p => { estoque[p.id] = p.estoque; });
-  
-  try {
-    await fetch(API_URL, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(estoque)
-    });
-  } catch (error) {
-    console.log('Erro ao salvar estoque');
-  }
 }
 
-// Carregar estoque ao iniciar
-carregarEstoque();
-//fim
+async function salvarEstoque() {
+  // Para salvar, precisaríamos da API do Google Sheets
+  // Por enquanto só lê - para salvar usamos /repor no Telegram
+  console.log('Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
+}
   
 let lastUpdateId = 0;
 let messageIds = {};
