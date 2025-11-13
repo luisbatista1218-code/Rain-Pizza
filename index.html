@@ -83,27 +83,38 @@ let products = [
   {id:2,categoria:"Bebidas",nome:"Coca de 2 litros",descricao:"Refrigerante coca cola de 2 litros",preco:12.00,imagem:"coca-grande.jpg"}
 ];
 
-// Google Sheets como banco - VERSÃO SIMPLES
-const SHEET_ID = '146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+// Google Sheets PUBLICADO - URL CORRETA
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIHUk60dcJHSpLj6aGjpLj7QhlXq1261guXxuzICKjgsOZPuXoV7DgaMlV_SDfWP1ng1wwzxRQXh5M/pubhtml';
 
 async function carregarEstoque() {
   try {
     const response = await fetch(SHEET_URL);
-    const text = await response.text();
-    const json = JSON.parse(text.replace('/*O_o*/', '').slice(47).slice(0, -2));
+    const html = await response.text();
     
-    // FORÇA manual baseado na estrutura conhecida
-    const estoque = {
-      1: 10, // Pizza
-      2: 10  // Coca
-    };
+    // Extrai os dados da tabela HTML
+    const estoque = {};
+    const matches = html.match(/<td[^>]*>([^<]+)<\/td>/g) || [];
+    
+    for (let i = 0; i < matches.length; i += 2) {
+      const idText = matches[i].replace(/<[^>]+>/g, '');
+      const qtdText = matches[i + 1]?.replace(/<[^>]+>/g, '');
+      
+      const id = parseInt(idText);
+      const quantidade = parseInt(qtdText);
+      
+      if (!isNaN(id) && !isNaN(quantidade)) {
+        estoque[id] = quantidade;
+      }
+    }
     
     products.forEach(p => {
-      p.estoque = estoque[p.id];
+      p.estoque = estoque[p.id] || 10;
     });
     
+    console.log('✅ Estoque carregado:', estoque);
+    
   } catch (error) {
+    console.log('❌ Erro:', error);
     products.forEach(p => {
       p.estoque = 10;
     });
@@ -111,7 +122,7 @@ async function carregarEstoque() {
 }
 
 async function salvarEstoque() {
-  console.log('Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
+  console.log('📦 Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
 }
   
 let lastUpdateId = 0;
