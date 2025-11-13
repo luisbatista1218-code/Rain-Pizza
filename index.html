@@ -91,26 +91,29 @@ async function carregarEstoque() {
     const response = await fetch(SHEET_URL);
     const html = await response.text();
     
-    // MÉTODO À PROVA DE FALHAS
-    const estoque = { 1: 10, 2: 10 }; // Valores padrão
+    // EXTRAÇÃO DIRETA - sua planilha tem os valores em tags simples
+    const estoque = {};
     
-    // Tenta extrair da tabela
-    const tableMatch = html.match(/<table[^>]*>([\s\S]*?)<\/table>/);
-    if (tableMatch) {
-      const tableHtml = tableMatch[0];
-      const cellMatches = tableHtml.match(/>([0-9]+)</g) || [];
+    // Procura por padrão: >1<, >10<, >2<, >10<
+    const valores = html.match(/>\s*(\d+)\s*</g) || [];
+    
+    for (let i = 0; i < valores.length; i += 2) {
+      const id = parseInt(valores[i].replace(/>|</g, ''));
+      const qtd = parseInt(valores[i + 1]?.replace(/>|</g, ''));
       
-      for (let i = 0; i < cellMatches.length; i += 2) {
-        const id = parseInt(cellMatches[i].replace(/>|</g, ''));
-        const qtd = parseInt(cellMatches[i + 1]?.replace(/>|</g, ''));
-        if (id && !isNaN(id) && qtd && !isNaN(qtd)) {
-          estoque[id] = qtd;
-        }
+      if (!isNaN(id) && !isNaN(qtd)) {
+        estoque[id] = qtd;
       }
     }
     
+    // Se não encontrou, usa padrão
+    if (Object.keys(estoque).length === 0) {
+      estoque[1] = 10;
+      estoque[2] = 10;
+    }
+    
     products.forEach(p => {
-      p.estoque = estoque[p.id];
+      p.estoque = estoque[p.id] || 10;
     });
     
     console.log('✅ Estoque carregado:', estoque);
@@ -121,7 +124,6 @@ async function carregarEstoque() {
     });
   }
 }
-
 async function salvarEstoque() {
   console.log('📦 Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
 }
