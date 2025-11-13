@@ -1213,7 +1213,7 @@ function showUploadComprovante(localizacaoData, descricao) {
 
             // DÁ BAIXA NO ESTOQUE
     cart.forEach(item => {
-    const produto = products.find(p => p.id === item.id);
+    const produto = products.find(p => p.id == item.id);
     if (produto) {
     produto.estoque -= item.qtd;
     // ALERTA SE ZEROU
