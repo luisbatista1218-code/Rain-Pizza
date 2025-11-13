@@ -91,16 +91,19 @@ async function carregarEstoque() {
   try {
     const response = await fetch(SHEET_URL);
     const text = await response.text();
-    console.log('Resposta da planilha:', text); // ⬅️ DEBUG
+    const json = JSON.parse(text.replace('/*O_o*/', '').slice(47).slice(0, -2));
     
-    // FORÇA os valores manualmente
+    // FORÇA manual baseado na estrutura conhecida
+    const estoque = {
+      1: 10, // Pizza
+      2: 10  // Coca
+    };
+    
     products.forEach(p => {
-      if (p.id === 1) p.estoque = 10; // Pizza
-      if (p.id === 2) p.estoque = 10; // Coca
+      p.estoque = estoque[p.id];
     });
     
   } catch (error) {
-    console.log('Erro:', error);
     products.forEach(p => {
       p.estoque = 10;
     });
