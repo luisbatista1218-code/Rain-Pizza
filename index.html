@@ -126,6 +126,24 @@ let processedCommands = new Set();
 let lastLocalizacaoData = null;
 let cartTimeout;
 
+async function salvarEstoque() {
+  try {
+    await fetch("https://script.google.com/macros/s/AKfycbwnIv_bmPz4kQPTfIguQ5YFJ0iJVt6E2vwAmTqFnzGU5dBNTaB96JZmq6fM8dkEksDgzQ/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        products.map(p => ({
+          id: p.id,
+          estoque: p.estoque
+        }))
+      )
+    });
+  } catch (err) {
+    console.log("ERRO ao salvar estoque:", err);
+  }
+}
+
+
 function iniciarTimeoutCarrinho() {
   if (cartTimeout) clearTimeout(cartTimeout);
   cartTimeout = setTimeout(() => {
