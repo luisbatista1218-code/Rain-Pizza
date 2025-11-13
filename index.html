@@ -128,17 +128,21 @@ let cartTimeout;
 
 async function salvarEstoque() {
   try {
-    // envia os dados — modo no-cors evita preflight/CORS no browser
     await fetch("https://script.google.com/macros/s/AKfycbwnIv_bmPz4kQPTfIguQ5YFJ0iJVt6E2vwAmTqFnzGU5dBNTaB96JZmq6fM8dkEksDgzQ/exec", {
       method: "POST",
-      mode: "no-cors", // evita bloqueio CORS no navegador
-      body: JSON.stringify(products.map(p => ({ id: p.id, estoque: p.estoque })))
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        products.map(p => ({
+          id: p.id,
+          estoque: p.estoque
+        }))
+      )
     });
-    console.log("salvarEstoque: pedido enviado (no-cors).");
   } catch (err) {
     console.log("ERRO ao salvar estoque:", err);
   }
 }
+
 
 
 
