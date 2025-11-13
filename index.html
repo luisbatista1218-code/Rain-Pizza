@@ -88,31 +88,33 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIHUk60dcJHS
 
 async function carregarEstoque() {
   try {
-    // Usa proxy CORS para evitar bloqueio
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const response = await fetch(proxyUrl + SHEET_URL);
-    const html = await response.text();
+    // Método INFALÍVEL - usa API pública do Sheets
+    const API_URL = 'https://opensheet.elk.sh/146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA/1';
+    const response = await fetch(API_URL);
+    const data = await response.json();
     
-    console.log('🔍 HTML COMPLETO:', html);
-    
-    // Método INFALÍVEL - procura os números diretamente
-    const numbers = html.match(/\b(1|2|10)\b/g) || [];
-    console.log('Números encontrados:', numbers);
-    
-    // Se achou 1,10,2,10 na ordem
-    if (numbers.includes('1') && numbers.includes('10') && 
-        numbers.includes('2') && numbers.includes('10')) {
-      products[0].estoque = 10; // Pizza
-      products[1].estoque = 10; // Coca
-    } else {
-      products.forEach(p => p.estoque = 10);
-    }
-    
+    const estoque = {};
+    data.forEach(linha => {
+      const id = parseInt(linha.id);
+      const quantidade = parseInt(linha.estoque);
+      if (!isNaN(id) && !isNaN(quantidade)) {
+        estoque[id] = quantidade;
+      }
+    });
+
+    products.forEach(p => {
+      p.estoque = estoque[p.id] || 10;
+    });
+
+    console.log('✅ Estoque carregado:', estoque);
+
   } catch (error) {
-    console.log('Erro:', error);
-    products.forEach(p => p.estoque = 10);
+    console.log('❌ Erro:', error);
+    products.forEach(p => {
+      p.estoque = 10;
+    });
   }
-  }
+}
 async function salvarEstoque() {
   console.log('📦 Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
 }
