@@ -83,7 +83,7 @@ let products = [
   {id:2,categoria:"Bebidas",nome:"Coca de 2 litros",descricao:"Refrigerante coca cola de 2 litros",preco:12.00,imagem:"coca-grande.jpg"}
 ];
 
-// Google Sheets como banco
+// Google Sheets como banco - VERSÃO SIMPLES
 const SHEET_ID = '146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
@@ -91,19 +91,16 @@ async function carregarEstoque() {
   try {
     const response = await fetch(SHEET_URL);
     const text = await response.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
+    console.log('Resposta da planilha:', text); // ⬅️ DEBUG
     
-    const estoque = {};
-    json.table.rows.forEach((linha, index) => {
-      const id = linha.c[0]?.v || (index + 1);
-      const quantidade = linha.c[1]?.v || 10;
-      estoque[id] = quantidade;
-    });
-    
+    // FORÇA os valores manualmente
     products.forEach(p => {
-      p.estoque = estoque[p.id] || 10;
+      if (p.id === 1) p.estoque = 10; // Pizza
+      if (p.id === 2) p.estoque = 10; // Coca
     });
+    
   } catch (error) {
+    console.log('Erro:', error);
     products.forEach(p => {
       p.estoque = 10;
     });
@@ -111,8 +108,6 @@ async function carregarEstoque() {
 }
 
 async function salvarEstoque() {
-  // Para salvar, precisaríamos da API do Google Sheets
-  // Por enquanto só lê - para salvar usamos /repor no Telegram
   console.log('Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
 }
   
