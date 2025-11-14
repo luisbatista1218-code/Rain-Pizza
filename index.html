@@ -1190,7 +1190,7 @@ function showUploadComprovante(localizacaoData, descricao) {
     const reader = new FileReader();
     reader.onload = async function(e) {
       const comprovanteBase64 = e.target.result;
-  /*
+  
       // DÁ BAIXA NO ESTOQUE
     cart.forEach(item => {
     const produto = products.find(p => p.id === item.id);
@@ -1202,7 +1202,7 @@ function showUploadComprovante(localizacaoData, descricao) {
     }
    }
   });
-      await salvarEstoque();//fim*/
+      await salvarEstoque();//fim
 
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
