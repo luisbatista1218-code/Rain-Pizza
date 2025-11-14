@@ -129,21 +129,27 @@ let cartTimeout;
 
 async function salvarEstoque() {
   try {
-    await fetch("https://script.google.com/macros/s/AKfycbxJZv7CXwCYOP2O3V-awi4lQQGpCABixoXp9Y7LZl-NPay7ns7aRDvFJqnvA_OrbUuoSg/exec", {
+    // ENVIA NO FORMATO QUE SEU APPS SCRIPT ESPERA
+    const dados = [
+      { id: 1, estoque: products[0].estoque },
+      { id: 2, estoque: products[1].estoque }
+    ];
+    
+    console.log('📤 Enviando:', dados);
+    
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxJZv7CXwCYOP2O3V-awi4lQQGpCABixoXp9Y7LZl-NPay7ns7aRDvFJqnvA_OrbUuoSg/exec", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        products.map(p => ({
-          id: p.id,
-          estoque: p.estoque
-        }))
-      )
+      body: JSON.stringify(dados)
     });
+    
+    const result = await response.text();
+    console.log('📥 Resposta:', result);
+    
   } catch (err) {
-    console.log("ERRO ao salvar estoque:", err);
+    console.log("❌ ERRO:", err);
   }
-}
-
+  }
 
 
 
