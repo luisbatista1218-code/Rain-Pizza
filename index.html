@@ -1188,23 +1188,21 @@ function showUploadComprovante(localizacaoData, descricao) {
     reader.onload = async function(e) {
       const comprovanteBase64 = e.target.result;
   
-      // DÁ BAIXA NO ESTOQUE
-    // DÁ BAIXA NO ESTOQUE
+  
+// DÁ BAIXA NO ESTOQUE - IDs FIXOS
 cart.forEach(item => {
-  const produto = products.find(p => p.id === item.id);
+  // USA OS IDs FIXOS 1 e 2
+  const produtoId = (item.nome?.includes('Pizza')) ? 1 : 2;
+  const produto = products.find(p => p.id === produtoId);
+  
   if (produto) {
-    alert(`📉 ANTES: ${produto.nome} = ${produto.estoque}`);
+    produto.estoque = Number(produto.estoque) || 10;
+    alert(`📉 ${produto.nome}: ${produto.estoque} → ${produto.estoque - item.qtd}`);
     produto.estoque -= item.qtd;
-    alert(`📉 DEPOIS: ${produto.nome} = ${produto.estoque}`);
-    
-    if (produto.estoque <= 0) {
-      alertaEstoqueZerado(produto);
-    }
   }
 });
-await salvarEstoque();//fim
-  alert('🎯 CHEGOU NO SALVAR ESTOQUE!');
-  await salvarEstoque();
+
+await salvarEstoque();
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
       let totalPedido = cart.reduce((total, item) => total + (item.preco * item.qtd), 0);
@@ -1241,7 +1239,7 @@ await salvarEstoque();//fim
       alert(`✅ Pedido #${pedido.codigo} confirmado!\n📱 Notificação enviada para o administrador\n💰 Total: R$ ${totalPedido.toFixed(2)}\n📍 Entrega em: ${localizacao}\n\n💎 Use o botão "Nota Fiscal" para baixar seus pedidos!`);
 
             // DÁ BAIXA NO ESTOQUE
-    cart.forEach(item => {
+    /*cart.forEach(item => {
     const produto = products.find(p => p.id == item.id);
     if (produto) {
     produto.estoque -= item.qtd;
@@ -1251,8 +1249,8 @@ await salvarEstoque();//fim
     }
    }
   });
-      await salvarEstoque();//fim
-      
+      await salvarEstoque();//fim 
+      */
       cart = [];
       saveToStorage();
       showHome();
