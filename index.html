@@ -135,22 +135,22 @@ async function salvarEstoque() {
         { id: 2, estoque: String(products[1]?.estoque || 10) }
       ]
     };
-    
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzKy59sIGSlOvmwjZRI89NkX4BLD1dB74FUP43ARhid75pOFELYlAqCzuOGPQ49h8yK/exec';
-    
-    await fetch(proxyUrl + scriptUrl, {
+
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbw-vPRGZ7gDCdE7_UjHwhqZg3ibD1gwkI9owFUnqekSty-DQZErp8X-L1hgyGTCXkZGOw/exec";
+
+    await fetch(scriptUrl, {
       method: "POST",
+      mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
-    
-    alert('✅ Dados enviados!');
-    
+
+    alert("✅ Estoque enviado!");
   } catch (err) {
-    alert('❌ Erro: ' + err);
+    alert("❌ Erro ao enviar: " + err);
   }
 }
+
 
 
 function iniciarTimeoutCarrinho() {
