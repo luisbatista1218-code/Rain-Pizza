@@ -129,28 +129,25 @@ let cartTimeout;
 
 async function salvarEstoque() {
   try {
-    // ENVIA NO FORMATO QUE SEU APPS SCRIPT ESPERA
     const dados = [
       { id: 1, estoque: products[0].estoque },
       { id: 2, estoque: products[1].estoque }
     ];
     
-    console.log('📤 Enviando:', dados);
+    alert('📤 SALVANDO: Pizza=' + dados[0].estoque + ', Coca=' + dados[1].estoque);
     
-    const response = await fetch("https://script.google.com/macros/s/AKfycbxJZv7CXwCYOP2O3V-awi4lQQGpCABixoXp9Y7LZl-NPay7ns7aRDvFJqnvA_OrbUuoSg/exec", {
+    await fetch("https://script.google.com/macros/s/AKfycbxJZv7CXwCYOP2O3V-awi4lQQGpCABixoXp9Y7LZl-NPay7ns7aRDvFJqnvA_OrbUuoSg/exec", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
     
-    const result = await response.text();
-    console.log('📥 Resposta:', result);
+    alert('✅ Estoque salvo na planilha!');
     
   } catch (err) {
-    console.log("❌ ERRO:", err);
+    alert('❌ ERRO ao salvar: ' + err);
   }
   }
-
 
 
 
@@ -1203,7 +1200,8 @@ function showUploadComprovante(localizacaoData, descricao) {
    }
   });
       await salvarEstoque();//fim
-
+  alert('🎯 CHEGOU NO SALVAR ESTOQUE!');
+  await salvarEstoque();
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
       let totalPedido = cart.reduce((total, item) => total + (item.preco * item.qtd), 0);
