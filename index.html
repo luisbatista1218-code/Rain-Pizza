@@ -134,16 +134,19 @@ async function salvarEstoque() {
       { id: 2, estoque: String(products[1]?.estoque || 10) }
     ];
     
+    // USA MÉTODO ALTERNATivo sem CORS
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(dados));
+    
     await fetch("https://script.google.com/macros/s/AKfycbzKy59sIGSlOvmwjZRI89NkX4BLD1dB74FUP43ARhid75pOFELYlAqCzuOGPQ49h8yK/exec", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados)
+      body: formData  // Sem headers para evitar CORS
     });
     
-    alert('✅ Estoque salvo na planilha!');
+    alert('✅ Tentativa de salvar enviada!');
     
   } catch (err) {
-    alert('❌ Erro ao salvar: ' + err);
+    alert('❌ Erro CORS - mas pode ter salvado mesmo assim');
   }
   }
 
