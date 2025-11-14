@@ -134,22 +134,22 @@ async function salvarEstoque() {
       { id: 2, estoque: String(products[1]?.estoque || 10) }
     ];
     
-    // USA MÉTODO ALTERNATivo sem CORS
-    const formData = new FormData();
-    formData.append('data', JSON.stringify(dados));
+    // USA PROXY para evitar CORS
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzKy59sIGSlOvmwjZRI89NkX4BLD1dB74FUP43ARhid75pOFELYlAqCzuOGPQ49h8yK/exec';
     
-    await fetch("https://script.google.com/macros/s/AKfycbzKy59sIGSlOvmwjZRI89NkX4BLD1dB74FUP43ARhid75pOFELYlAqCzuOGPQ49h8yK/exec", {
+    await fetch(proxyUrl + scriptUrl, {
       method: "POST",
-      body: formData  // Sem headers para evitar CORS
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados)
     });
     
-    alert('✅ Tentativa de salvar enviada!');
+    alert('✅ Dados enviados via proxy!');
     
   } catch (err) {
-    alert('❌ Erro CORS - mas pode ter salvado mesmo assim');
+    alert('❌ Erro: ' + err);
   }
   }
-
 
 
 function iniciarTimeoutCarrinho() {
