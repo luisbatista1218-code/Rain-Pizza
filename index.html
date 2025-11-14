@@ -129,12 +129,14 @@ let cartTimeout;
 
 async function salvarEstoque() {
   try {
-    const dados = [
-      { id: 1, estoque: products[0].estoque },
-      { id: 2, estoque: products[1].estoque }
-    ];
+    // CONVERTE para STRING (que é o que o Apps Script espera)
+    const pizzaEstoque = String(products[0]?.estoque || 10);
+    const cocaEstoque = String(products[1]?.estoque || 10);
     
-    alert('📤 SALVANDO: Pizza=' + dados[0].estoque + ', Coca=' + dados[1].estoque);
+    const dados = [
+      { id: 1, estoque: pizzaEstoque },
+      { id: 2, estoque: cocaEstoque }
+    ];
     
     await fetch("https://script.google.com/macros/s/AKfycbxJZv7CXwCYOP2O3V-awi4lQQGpCABixoXp9Y7LZl-NPay7ns7aRDvFJqnvA_OrbUuoSg/exec", {
       method: "POST",
@@ -142,10 +144,8 @@ async function salvarEstoque() {
       body: JSON.stringify(dados)
     });
     
-    alert('✅ Estoque salvo na planilha!');
-    
   } catch (err) {
-    alert('❌ ERRO ao salvar: ' + err);
+    console.log("Erro ao salvar:", err);
   }
   }
 
