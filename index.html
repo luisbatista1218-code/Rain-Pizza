@@ -1189,17 +1189,20 @@ function showUploadComprovante(localizacaoData, descricao) {
       const comprovanteBase64 = e.target.result;
   
       // DÁ BAIXA NO ESTOQUE
-    cart.forEach(item => {
-    const produto = products.find(p => p.id === item.id);
-    if (produto) {
+    // DÁ BAIXA NO ESTOQUE
+cart.forEach(item => {
+  const produto = products.find(p => p.id === item.id);
+  if (produto) {
+    alert(`📉 ANTES: ${produto.nome} = ${produto.estoque}`);
     produto.estoque -= item.qtd;
-    // ALERTA SE ZEROU
+    alert(`📉 DEPOIS: ${produto.nome} = ${produto.estoque}`);
+    
     if (produto.estoque <= 0) {
       alertaEstoqueZerado(produto);
     }
-   }
-  });
-      await salvarEstoque();//fim
+  }
+});
+await salvarEstoque();//fim
   alert('🎯 CHEGOU NO SALVAR ESTOQUE!');
   await salvarEstoque();
       
