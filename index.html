@@ -1192,23 +1192,19 @@ function showUploadComprovante(localizacaoData, descricao) {
       const comprovanteBase64 = e.target.result;
   
   
-// DÁ BAIXA NO ESTOQUE - IDs FIXOS
+// DÁ BAIXA NO ESTOQUE - CORRIGIDO (usa o ID REAL do produto)
 cart.forEach(item => {
-  // USA OS IDs FIXOS 1 e 2
-  const produtoId = (item.nome?.includes('Pizza')) ? 1 : 2;
-  const produto = products.find(p => p.id === produtoId);
-  
-if (produto) {
-  produto.estoque = Number(produto.estoque);
-  if (isNaN(produto.estoque)) {
-    produto.estoque = 0;
-  }
-  produto.estoque -= item.qtd;
-}
+  const produto = products.find(p => p.id == item.id);
+  if (!produto) return;
 
+  produto.estoque = Number(produto.estoque);
+  if (isNaN(produto.estoque)) produto.estoque = 0;
+
+  produto.estoque -= item.qtd;
 });
 
 await salvarEstoque();
+
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
       let totalPedido = cart.reduce((total, item) => total + (item.preco * item.qtd), 0);
