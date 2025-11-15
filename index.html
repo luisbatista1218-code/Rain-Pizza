@@ -94,27 +94,28 @@ async function carregarEstoque() {
 
     const estoque = {};
     data.forEach(linha => {
-      const id = parseInt(linha.id);
-      const quantidade = parseInt(linha.estoque);
-      if (!isNaN(id) && !isNaN(quantidade)) {
-        estoque[id] = quantidade;
+      const id = Number(linha.id);
+      const qtd = Number(linha.estoque);
+
+      if (!isNaN(id) && !isNaN(qtd)) {
+        estoque[id] = qtd;
       }
     });
 
-    // Atualiza somente quando existe valor na planilha.
+    // ✔ ATUALIZA corretamente cada produto
     products.forEach(p => {
       if (estoque[p.id] !== undefined) {
         p.estoque = estoque[p.id];
       }
     });
 
-    console.log('✅ Estoque carregado:', estoque);
+    console.log('Estoque carregado:', products);
+
   } catch (error) {
-    console.log('❌ Erro carregando estoque:', error);
-    // NÃO reseta o estoque local — só avisa no console.
-    console.log('⚠ Mantendo estoque local atual (não houve alteração).');
+    console.log('Erro ao carregar estoque:', error);
   }
 }
+
 
 
 /*async function salvarEstoque() {
