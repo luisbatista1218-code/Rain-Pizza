@@ -1198,11 +1198,14 @@ cart.forEach(item => {
   const produtoId = (item.nome?.includes('Pizza')) ? 1 : 2;
   const produto = products.find(p => p.id === produtoId);
   
-  if (produto) {
-    produto.estoque = Number(produto.estoque) || 10;
-    alert(`📉 ${produto.nome}: ${produto.estoque} → ${produto.estoque - item.qtd}`);
-    produto.estoque -= item.qtd;
+if (produto) {
+  produto.estoque = Number(produto.estoque);
+  if (isNaN(produto.estoque)) {
+    produto.estoque = 0;
   }
+  produto.estoque -= item.qtd;
+}
+
 });
 
 await salvarEstoque();
