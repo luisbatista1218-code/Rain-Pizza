@@ -88,12 +88,11 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIHUk60dcJHS
 
 async function carregarEstoque() {
   try {
-    // Método INFALÍVEL - usa API pública do Sheets
     const API_URL = 'https://opensheet.elk.sh/146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA/1';
 
     const response = await fetch(API_URL);
     const data = await response.json();
-    
+
     const estoque = {};
     data.forEach(linha => {
       const id = parseInt(linha.id);
@@ -103,19 +102,23 @@ async function carregarEstoque() {
       }
     });
 
+    // ✔ Só atualiza se existir dado na planilha
     products.forEach(p => {
-      p.estoque = estoque[p.id] || 10;
+      if (estoque[p.id] !== undefined) {
+        p.estoque = estoque[p.id];
+      }
     });
 
     console.log('✅ Estoque carregado:', estoque);
 
   } catch (error) {
-    console.log('❌ Erro:', error);
-    products.forEach(p => {
-      p.estoque = 10;
-    });
+    console.log('❌ Erro carregando estoque:', error);
+
+    // ❗ NUNCA resetar estoque
+    console.log('⚠ Nenhuma alteração feita no estoque local.');
   }
 }
+
 /*async function salvarEstoque() {
   console.log('📦 Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
 }*/
@@ -130,10 +133,10 @@ let cartTimeout;
 async function salvarEstoque() {
   try {
     const dados = {
-      produtos: [
-        { id: 1, estoque: String(products[0]?.estoque || 10) },
-        { id: 2, estoque: String(products[1]?.estoque || 10) }
-      ]
+      produtos: products.map(p => ({
+        id: p.id,
+        estoque: String(p.estoque)
+      }))
     };
 
     const scriptUrl = "https://script.google.com/macros/s/AKfycbw-vPRGZ7gDCdE7_UjHwhqZg3ibD1gwkI9owFUnqekSty-DQZErp8X-L1hgyGTCXkZGOw/exec";
@@ -145,11 +148,11 @@ async function salvarEstoque() {
       body: JSON.stringify(dados)
     });
 
-    alert("✅ Estoque enviado!");
   } catch (err) {
-    alert("❌ Erro ao enviar: " + err);
+    console.log("Erro ao salvar estoque:", err);
   }
 }
+
 
 
 
