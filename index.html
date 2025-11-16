@@ -1197,14 +1197,16 @@ function showUploadComprovante(localizacaoData, descricao) {
 await carregarEstoque();
 
 cart.forEach(item => {
-  const produto = products.find(p => p.id === item.id);
-  if (!produto) return;  // agora vai achar!
+  // força o ID para number de ambos os lados
+  const produto = products.find(p => Number(p.id) === Number(item.id));
+  if (!produto) return;
 
   produto.estoque = Number(produto.estoque);
   if (isNaN(produto.estoque)) produto.estoque = 0;
 
   produto.estoque -= item.qtd;
 });
+
 
 
 await salvarEstoque();
