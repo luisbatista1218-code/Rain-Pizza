@@ -1201,21 +1201,13 @@ function showUploadComprovante(localizacaoData, descricao) {
 // DÁ BAIXA NO ESTOQUE - CORRIGIDO (usa o ID REAL do produto)
 await carregarEstoque();
 
-cart.forEach(item => {
-  // converte ambos para string ou ambos para number
-  const produto = products.find(p => String(p.id) === String(item.id));
-  
-  if (!produto) {
-    console.log('Produto não encontrado:', item);
-    return;
+for (const item of cart) {
+    const produto = products.find(p => Number(p.id) === Number(item.id));
+    if (produto) {
+        produto.estoque = Number(produto.estoque) - Number(item.qtd);
+        console.log(`Descontado: ${item.qtd}x ${produto.nome}`);
+    }
   }
-
-  produto.estoque = Number(produto.estoque) || 0;
-  produto.estoque -= Number(item.qtd);
-
-  console.log(`Produto ${produto.nome} novo estoque: ${produto.estoque}`);
-});
-
 
 await salvarEstoque();
 
@@ -1255,19 +1247,7 @@ await salvarEstoque();
       
       alert(`✅ Pedido #${pedido.codigo} confirmado!\n📱 Notificação enviada para o administrador\n💰 Total: R$ ${totalPedido.toFixed(2)}\n📍 Entrega em: ${localizacao}\n\n💎 Use o botão "Nota Fiscal" para baixar seus pedidos!`);
 
-            // DÁ BAIXA NO ESTOQUE
-    /*cart.forEach(item => {
-    const produto = products.find(p => p.id == item.id);
-    if (produto) {
-    produto.estoque -= item.qtd;
-    // ALERTA SE ZEROU
-    if (produto.estoque <= 0) {
-      alertaEstoqueZerado(produto);
-    }
-   }
-  });
-      await salvarEstoque();//fim 
-      */
+
       cart = [];
       saveToStorage();
       showHome();
