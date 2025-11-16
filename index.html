@@ -874,7 +874,7 @@ if (p.estoque < quantidadeTotal) {
     itemNoCarrinho.qtd++;
   } else {
     cart.push({
-      id: p.id,
+      id: Number(p.id),
       nome: p.nome,
       preco: p.preco,
       qtd: 1
