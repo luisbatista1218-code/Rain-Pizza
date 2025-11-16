@@ -1202,10 +1202,10 @@ function showUploadComprovante(localizacaoData, descricao) {
 await carregarEstoque();
 
 for (const item of cart) {
-    const produto = products.find(p => Number(p.id) === Number(item.id));
-    if (produto) {
+    const produto = products.find(p => p.nome === item.nome); // Busca por NOME
+    if (produto && produto.estoque !== undefined) {
         produto.estoque = Number(produto.estoque) - Number(item.qtd);
-        console.log(`Descontado: ${item.qtd}x ${produto.nome}`);
+        console.log(`Descontado: ${item.qtd}x ${produto.nome} - Novo estoque: ${produto.estoque}`);
     }
   }
 
