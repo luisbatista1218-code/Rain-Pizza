@@ -1197,17 +1197,16 @@ function showUploadComprovante(localizacaoData, descricao) {
 await carregarEstoque();
 
 cart.forEach(item => {
-  // força o ID para number de ambos os lados
-  const produto = products.find(p => Number(p.id) === Number(item.id));
+  // encontra pelo nome
+  const produto = products.find(p => p.nome.toLowerCase() === item.nome.toLowerCase());
   if (!produto) return;
 
-  produto.estoque = Number(produto.estoque);
-  if (isNaN(produto.estoque)) produto.estoque = 0;
-
-  produto.estoque -= item.qtd;
+  // desconta pelo ID real do produto
+  const index = products.findIndex(p => p.id === produto.id);
+  if (index !== -1) {
+    products[index].estoque = Number(products[index].estoque) - item.qtd;
+  }
 });
-
-
 
 await salvarEstoque();
 
