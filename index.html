@@ -1195,20 +1195,22 @@ function showUploadComprovante(localizacaoData, descricao) {
   
 // DÁ BAIXA NO ESTOQUE - CORRIGIDO (usa o ID REAL do produto)
 await carregarEstoque();
-      
+
 cart.forEach(item => {
-  const produto = products.find(p => Number(p.id) === Number(item.id));
+  const produto = products.find(p => 
+    p.nome.toLowerCase().includes(item.nome.toLowerCase())
+  );
 
   if (!produto) return;
 
   produto.estoque = Number(produto.estoque);
   if (isNaN(produto.estoque)) produto.estoque = 0;
 
-  produto.estoque -= item.qtd;
+  produto.estoque = produto.estoque - item.qtd;
 });
 
-
 await salvarEstoque();
+
 
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
