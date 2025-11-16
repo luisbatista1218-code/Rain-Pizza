@@ -131,7 +131,7 @@ async function salvarEstoque() {
       }))
     };
 
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbw-vPRGZ7gDCdE7_UjHwhqZg3ibD1gwkI9owFUnqekSty-DQZErp8X-L1hgyGTCXkZGOw/exec";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxarWmN-OD0YPxFNPpS525sP29Z-rXpUSOUyWLjObSKrhy_aPo2MhhPoltePKE0cvhmsQ/exec";
 
     await fetch(scriptUrl, {
       method: "POST",
@@ -139,10 +139,12 @@ async function salvarEstoque() {
       body: JSON.stringify(dados)
     });
 
+    console.log('✅ Estoque salvo na planilha!');
+
   } catch (err) {
     console.log("Erro ao salvar estoque:", err);
   }
-}
+  }
 
 function iniciarTimeoutCarrinho() {
   if (cartTimeout) clearTimeout(cartTimeout);
