@@ -852,19 +852,22 @@ function addToCart(id){
   if (!p) return;
 
   // Verificar se produto está esgotado
-  if (p.estoque <= 0) {
-    alert(`❌ PRODUTO ESGOTADO!`);
-    return;
-  }
+id = Number(id); // <-- AQUI É O SEGREDO
 
-  let itemNoCarrinho = cart.find(c => c.id === id);
-  let quantidadeTotal = itemNoCarrinho ? itemNoCarrinho.qtd + 1 : 1;
-  
-  // Verificar estoque insuficiente
-  if (p.estoque < quantidadeTotal) {
-    alert(`❌ Estoque insuficiente!`);
-    return;
-  }
+// Verificar se produto está esgotado
+if (p.estoque <= 0) {
+  alert(`❌ PRODUTO ESGOTADO!`);
+  return;
+}
+
+let itemNoCarrinho = cart.find(c => c.id === id);
+let quantidadeTotal = itemNoCarrinho ? itemNoCarrinho.qtd + 1 : 1;
+
+// Verificar estoque insuficiente
+if (p.estoque < quantidadeTotal) {
+  alert(`❌ Estoque insuficiente!`);
+  return;
+}
   
   // Adicionar ao carrinho
   if (itemNoCarrinho) {
@@ -924,13 +927,15 @@ function incQty(id){
   let item = cart.find(c => c.id === id); 
   if(item){ 
   // verifica estoque
-    let p = products.find(x => x.id === id);
-    
-    if (p && p.estoque < (item.qtd + 1)) {
-      alert(`❌ Estoque insuficiente!`);
-      return;
-  }
-   //fim 
+id = Number(id); // <-- ISSO RESOLVE TUDO
+
+let p = products.find(x => x.id === id);
+
+if (p && p.estoque < (item.qtd + 1)) {
+  alert(`❌ Estoque insuficiente!`);
+  return;
+}  //fim 
+ 
     item.qtd++; 
     saveToStorage();
     showCart(); 
