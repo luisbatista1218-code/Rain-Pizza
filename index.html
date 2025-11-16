@@ -1160,22 +1160,30 @@ function showUploadComprovante(localizacaoData, descricao) {
     reader.onload = async function(e) {
       const comprovanteBase64 = e.target.result;
 
-      await carregarEstoque();
-      
-      for (const item of cart) {
-      const produto = products.find(p => String(p.id) === String(item.id));
+ // ⚡ **CORREÇÃO: SEMPRE CARREGA ESTOQUE ATUAL ANTES DE DAR BAIXA**
+await carregarEstoque();
+
+console.log('🎯 ESTOQUE ANTES DA BAIXA:', products.map(p => `${p.nome}: ${p.estoque}`));
+
+// FAZ A BAIXA
+for (const item of cart) {
+  const produto = products.find(p => p.id === item.id);
+  if (produto && produto.estoque !== undefined) {
+    console.log(`🔥 Dando baixa: ${item.qtd}x ${produto.nome} (estoque anterior: ${produto.estoque})`);
+    produto.estoque -= item.qtd;
+    console.log(`✅ Novo estoque: ${produto.estoque}`);
     
-      if (produto && produto.estoque !== undefined) {
-      produto.estoque -= item.qtd;
-      console.log(`🔥 Descontado: ${item.qtd}x ${produto.nome} - Novo: ${produto.estoque}`);
-        
-        if (produto.estoque <= 0) {
-            alertaEstoqueZerado(produto);
-        }
-      }
+    if (produto.estoque <= 0) {
+      alertaEstoqueZerado(produto);
     }
-      
-      await salvarEstoque();
+  }
+}
+
+// ⚡ **SALVA NA PLANILHA**
+await salvarEstoque();
+
+console.log('💾 Estoque salvo na planilha');
+console.log('📦 ESTOQUE FINAL:', products.map(p => `${p.nome}: ${p.estoque}`));
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
       let totalPedido = cart.reduce((total, item) => total + (item.preco * item.qtd), 0);
