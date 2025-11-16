@@ -1197,20 +1197,6 @@ function showUploadComprovante(localizacaoData, descricao) {
     reader.onload = async function(e) {
       const comprovanteBase64 = e.target.result;
   
-  
-// DÁ BAIXA NO ESTOQUE - CORRIGIDO (usa o ID REAL do produto)
-await carregarEstoque();
-
-for (const item of cart) {
-    const produto = products.find(p => p.nome === item.nome); // Busca por NOME
-    if (produto && produto.estoque !== undefined) {
-        produto.estoque = Number(produto.estoque) - Number(item.qtd);
-        console.log(`Descontado: ${item.qtd}x ${produto.nome} - Novo estoque: ${produto.estoque}`);
-    }
-  }
-
-await salvarEstoque();
-
 
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
