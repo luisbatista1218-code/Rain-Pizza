@@ -1197,17 +1197,15 @@ function showUploadComprovante(localizacaoData, descricao) {
 await carregarEstoque();
 
 cart.forEach(item => {
-  const produto = products.find(p => 
-    String(p.id) === String(item.id)
-  );
-
-  if (!produto) return;
+  const produto = products.find(p => p.id == item.id);
+  if (!produto) return;  // agora vai achar!
 
   produto.estoque = Number(produto.estoque);
   if (isNaN(produto.estoque)) produto.estoque = 0;
 
-  produto.estoque = produto.estoque - item.qtd;
+  produto.estoque -= item.qtd;
 });
+
 
 await salvarEstoque();
 
