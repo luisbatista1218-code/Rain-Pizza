@@ -124,6 +124,8 @@ let cartTimeout;
 
 async function salvarEstoque() {
   try {
+    alert('🔄 Tentando salvar estoque...');
+    
     const dados = {
       produtos: products.map(p => ({
         id: p.id,
@@ -132,19 +134,22 @@ async function salvarEstoque() {
     };
 
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxarWmN-OD0YPxFNPpS525sP29Z-rXpUSOUyWLjObSKrhy_aPo2MhhPoltePKE0cvhmsQ/exec";
-
-    await fetch(scriptUrl, {
+    
+    const response = await fetch(scriptUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
 
-    console.log('✅ Estoque salvo na planilha!');
+    const result = await response.text();
+    alert('✅ Resposta: ' + result);
 
   } catch (err) {
-    console.log("Erro ao salvar estoque:", err);
+    alert('❌ ERRO GRAVE: ' + err.message);
+    console.log("Erro detalhado:", err);
   }
-  }
+}
+
 
 function iniciarTimeoutCarrinho() {
   if (cartTimeout) clearTimeout(cartTimeout);
@@ -1145,6 +1150,7 @@ function showUploadComprovante(localizacaoData, descricao) {
         Tipo: ${file.type}<br>
         Tamanho: ${fileSize} MB<br>
         ✅ Arquivo pronto para envio
+   
       </div>
     `;
     
@@ -1162,18 +1168,17 @@ function showUploadComprovante(localizacaoData, descricao) {
     reader.onload = async function(e) {
       const comprovanteBase64 = e.target.result;
 
- // ⚡ **CORREÇÃO: SEMPRE CARREGA ESTOQUE ATUAL ANTES DE DAR BAIXA**
+// ⚡ **CORREÇÃO: SEMPRE CARREGA ESTOQUE ATUAL ANTES DE DAR BAIXA**
 await carregarEstoque();
 
-console.log('🎯 ESTOQUE ANTES DA BAIXA:', products.map(p => `${p.nome}: ${p.estoque}`));
+alert('🎯 ESTOQUE ANTES: ' + products.map(p => `${p.nome}: ${p.estoque}`).join(', '));
 
 // FAZ A BAIXA
 for (const item of cart) {
   const produto = products.find(p => p.id === item.id);
   if (produto && produto.estoque !== undefined) {
-    console.log(`🔥 Dando baixa: ${item.qtd}x ${produto.nome} (estoque anterior: ${produto.estoque})`);
+    alert(`🔥 Baixa: ${item.qtd}x ${produto.nome} (de ${produto.estoque} para ${produto.estoque - item.qtd})`);
     produto.estoque -= item.qtd;
-    console.log(`✅ Novo estoque: ${produto.estoque}`);
     
     if (produto.estoque <= 0) {
       alertaEstoqueZerado(produto);
@@ -1184,8 +1189,10 @@ for (const item of cart) {
 // ⚡ **SALVA NA PLANILHA**
 await salvarEstoque();
 
-console.log('💾 Estoque salvo na planilha');
-console.log('📦 ESTOQUE FINAL:', products.map(p => `${p.nome}: ${p.estoque}`));
+alert('💾 Estoque salvo na planilha!');
+alert('📦 ESTOQUE FINAL: ' + products.map(p => `${p.nome}: ${p.estoque}`).join(', '));
+
+
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
       let totalPedido = cart.reduce((total, item) => total + (item.preco * item.qtd), 0);
