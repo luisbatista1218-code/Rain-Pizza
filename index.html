@@ -1196,8 +1196,9 @@ function showUploadComprovante(localizacaoData, descricao) {
 // DÁ BAIXA NO ESTOQUE - CORRIGIDO (usa o ID REAL do produto)
 await carregarEstoque();
       
-  cart.forEach(item => {
-  const produto = products.find(p => p.id === item.id);
+cart.forEach(item => {
+  const produto = products.find(p => Number(p.id) === Number(item.id));
+
   if (!produto) return;
 
   produto.estoque = Number(produto.estoque);
@@ -1205,6 +1206,7 @@ await carregarEstoque();
 
   produto.estoque -= item.qtd;
 });
+
 
 await salvarEstoque();
 
