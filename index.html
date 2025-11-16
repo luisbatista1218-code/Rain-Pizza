@@ -1197,16 +1197,20 @@ function showUploadComprovante(localizacaoData, descricao) {
 await carregarEstoque();
 
 cart.forEach(item => {
-  // encontra pelo nome
-  const produto = products.find(p => p.nome.toLowerCase() === item.nome.toLowerCase());
-  if (!produto) return;
-
-  // desconta pelo ID real do produto
-  const index = products.findIndex(p => p.id === produto.id);
-  if (index !== -1) {
-    products[index].estoque = Number(products[index].estoque) - item.qtd;
+  // converte ambos para string ou ambos para number
+  const produto = products.find(p => String(p.id) === String(item.id));
+  
+  if (!produto) {
+    console.log('Produto não encontrado:', item);
+    return;
   }
+
+  produto.estoque = Number(produto.estoque) || 0;
+  produto.estoque -= Number(item.qtd);
+
+  console.log(`Produto ${produto.nome} novo estoque: ${produto.estoque}`);
 });
+
 
 await salvarEstoque();
 
