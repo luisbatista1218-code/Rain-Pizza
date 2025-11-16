@@ -124,7 +124,7 @@ let cartTimeout;
 
 async function salvarEstoque() {
   try {
-    alert('🔄 Tentando salvar estoque...');
+    alert('🔄 Salvando estoque...');
     
     const dados = {
       produtos: products.map(p => ({
@@ -133,23 +133,26 @@ async function salvarEstoque() {
       }))
     };
 
+    // ⚡ USA PROXY PARA EVITAR CORS
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const scriptUrl = "https://script.google.com/macros/s/AKfycbxarWmN-OD0YPxFNPpS525sP29Z-rXpUSOUyWLjObSKrhy_aPo2MhhPoltePKE0cvhmsQ/exec";
     
-    const response = await fetch(scriptUrl, {
+    const response = await fetch(proxyUrl + scriptUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest"
+      },
       body: JSON.stringify(dados)
     });
 
     const result = await response.text();
-    alert('✅ Resposta: ' + result);
+    alert('✅ Estoque salvo! Resposta: ' + result);
 
   } catch (err) {
-    alert('❌ ERRO GRAVE: ' + err.message);
-    console.log("Erro detalhado:", err);
+    alert('❌ ERRO: ' + err.message);
   }
 }
-
 
 function iniciarTimeoutCarrinho() {
   if (cartTimeout) clearTimeout(cartTimeout);
