@@ -92,24 +92,23 @@ async function carregarEstoque() {
     const response = await fetch(API_URL);
     const data = await response.json();
 
-    const estoque = {};
+    console.log('📊 Dados da planilha:', data); // DEBUG
+
+    // CORREÇÃO: Compara ID como STRING
     data.forEach(linha => {
-      const id = Number(linha.id);
+      const idPlanilha = linha.id; // Já é string
       const qtd = Number(linha.estoque);
-
-      if (!isNaN(id) && !isNaN(qtd)) {
-        estoque[id] = qtd;
+      
+      if (!isNaN(qtd)) {
+        const produto = products.find(p => String(p.id) === String(idPlanilha));
+        if (produto) {
+          produto.estoque = qtd;
+          console.log(`✅ Atualizado: ${produto.nome} = ${qtd} unidades`);
+        }
       }
     });
 
-    // ✔ ATUALIZA corretamente cada produto
-    products.forEach(p => {
-      if (estoque[p.id] !== undefined) {
-        p.estoque = estoque[p.id];
-      }
-    });
-
-    console.log('Estoque carregado:', products);
+    console.log('🎯 Estoque final:', products);
 
   } catch (error) {
     console.log('Erro ao carregar estoque:', error);
@@ -1164,16 +1163,17 @@ function showUploadComprovante(localizacaoData, descricao) {
       await carregarEstoque();
       
       for (const item of cart) {
-        const produto = products.find(p => p.id === item.id);
-        if (produto && produto.estoque !== undefined) {
-          produto.estoque -= item.qtd;
-          console.log(`Descontado: ${item.qtd}x ${produto.nome} - Novo estoque: ${produto.estoque}`);
-          
-          if (produto.estoque <= 0) {
+      const produto = products.find(p => String(p.id) === String(item.id));
+    
+      if (produto && produto.estoque !== undefined) {
+      produto.estoque -= item.qtd;
+      console.log(`🔥 Descontado: ${item.qtd}x ${produto.nome} - Novo: ${produto.estoque}`);
+        
+        if (produto.estoque <= 0) {
             alertaEstoqueZerado(produto);
-          }
         }
       }
+    }
       
       await salvarEstoque();
       
