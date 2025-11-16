@@ -1197,7 +1197,7 @@ function showUploadComprovante(localizacaoData, descricao) {
 await carregarEstoque();
 
 cart.forEach(item => {
-  const produto = products.find(p => p.id == item.id);
+  const produto = products.find(p => p.id === item.id);
   if (!produto) return;  // agora vai achar!
 
   produto.estoque = Number(produto.estoque);
