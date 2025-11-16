@@ -79,8 +79,8 @@ let currentView = 'home';
 let unreadNotifications = 0;
 let categories = ["Pizza", "Bebidas", "Sobremesas"];
 let products = [
-  {id:1,categoria:"Pizza",nome:"Pizza Calabresa",descricao:"Pizza com borda de requeijão",preco:30.00,imagem:"pizza-calabresa.jpg"},
-  {id:2,categoria:"Bebidas",nome:"Coca de 2 litros",descricao:"Refrigerante coca cola de 2 litros",preco:12.00,imagem:"coca-grande.jpg"}
+  {id:1,categoria:"Pizza",nome:"Pizza Calabresa",descricao:"Pizza com borda de requeijão",preco:30.00,imagem:"pizza-calabresa.jpg", estoque: 0},
+  {id:2,categoria:"Bebidas",nome:"Coca de 2 litros",descricao:"Refrigerante coca cola de 2 litros",preco:12.00,imagem:"coca-grande.jpg", estoque: 0}
 ];
 
 // Google Sheets PUBLICADO - URL CORRETA
@@ -115,12 +115,6 @@ async function carregarEstoque() {
     console.log('Erro ao carregar estoque:', error);
   }
 }
-
-
-
-/*async function salvarEstoque() {
-  console.log('📦 Estoque atual:', products.map(p => `${p.nome}: ${p.estoque}`));
-}*/
   
 let lastUpdateId = 0;
 let messageIds = {};
@@ -142,7 +136,6 @@ async function salvarEstoque() {
 
     await fetch(scriptUrl, {
       method: "POST",
-    //  mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados)
     });
@@ -151,9 +144,6 @@ async function salvarEstoque() {
     console.log("Erro ao salvar estoque:", err);
   }
 }
-
-
-
 
 function iniciarTimeoutCarrinho() {
   if (cartTimeout) clearTimeout(cartTimeout);
@@ -174,18 +164,15 @@ async function checkTelegramUpdates() {
     
     if (data.ok && data.result.length > 0) {
       data.result.forEach(update => {
-      //começo
         if (update.message && update.message.text) {
         const text = update.message.text;
         if (text.startsWith('/repor')) {
         processarReporEstoque(update.message);
       }
-     //fim
-     //começo
         if (text.startsWith('/list')) {
     processarListEstoque(update.message);
      }
-    }//fim    
+    }  
         if (update.callback_query) {
           const data = update.callback_query.data;
           const commandId = `${update.update_id}_${data}`;
@@ -203,7 +190,7 @@ async function checkTelegramUpdates() {
   }
 }
 
-const pedidosBloqueados = new Set(); // impede cliques repetidos no mesmo pedido
+const pedidosBloqueados = new Set();
 
 async function processarCallbackStatus(data, callbackObj) {
   const match = data.match(/status_(\d+)_(\w+)/);
@@ -213,9 +200,7 @@ async function processarCallbackStatus(data, callbackObj) {
   const novoStatus = match[2].toLowerCase();
   const chave = `pedido_${codigo}`;
 
-  // Se o pedido já foi marcado como finalizado (entregue/cancelado)
   if (pedidosBloqueados.has(chave)) {
-    // responde pro Telegram pra tirar o spinner do botão
     if (callbackObj?.id) {
       await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
         method: 'POST',
@@ -231,7 +216,6 @@ async function processarCallbackStatus(data, callbackObj) {
     return;
   }
 
-  // Mapeia status válidos
   const statusMap = {
     'pago': '✅ Pagamento confirmado',
     'preparando': '👨‍🍳 Preparando pedido',
@@ -243,15 +227,12 @@ async function processarCallbackStatus(data, callbackObj) {
   const textoStatus = statusMap[novoStatus];
   if (!textoStatus) return;
 
-  // Bloqueia caso o status seja final (entregue ou cancelado)
   if (novoStatus === 'entregue' || novoStatus === 'cancelado') {
     pedidosBloqueados.add(chave);
   }
 
-  // Atualiza normalmente
   atualizarStatusPedido(codigo, textoStatus);
 
-  // ACK rápido pro Telegram
   if (callbackObj?.id) {
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
       method: 'POST',
@@ -385,8 +366,6 @@ async function processarReporEstoque(message) {
   }
 
 async function processarListEstoque(message) {
-
-  // 1. Buscar a planilha no OpenSheet
   const planilha = await fetch("https://opensheet.elk.sh/146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA/1")
     .then(r => r.json())
     .catch(err => {
@@ -394,15 +373,13 @@ async function processarListEstoque(message) {
       return [];
     });
 
-  // 2. Montar o estoque cruzando products com a planilha
   const estoqueMsg = `📦 *ESTOQUE ATUAL*\n\n` +
     products.map(p => {
-      const item = planilha.find(i => i.id === String(p.id)); // comparar ID
+      const item = planilha.find(i => i.id === String(p.id));
       const estoqueReal = item ? item.estoque : "indefinido";
       return `• ${p.nome}: ${estoqueReal} unidades`;
     }).join('\n');
 
-  // 3. Enviar mensagem
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -413,7 +390,6 @@ async function processarListEstoque(message) {
     })
   });
 }
-
 
 setInterval(checkTelegramUpdates, 2000);
 
@@ -430,10 +406,9 @@ function loadFromStorage() {
         orders = data.orders || [];
         unreadNotifications = data.unreadNotifications || 0;
         updateNotificationCounter();
-        //limpar carrinho depois de 10 min
         if (cart.length > 0) {
         iniciarTimeoutCarrinho();
-      }//fim
+      }
       } else {
         clearStorage();
       }
@@ -708,7 +683,6 @@ function baixarNotaFiscalIndividual(codigo) {
     return;
   }
 
-  // Cria conteúdo HTML bonito
   const notaHTML = `
     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
       <div style="text-align: center; border-bottom: 2px solid #3a0060; padding-bottom: 15px; margin-bottom: 20px;">
@@ -755,7 +729,6 @@ function baixarNotaFiscalIndividual(codigo) {
     </div>
   `;
 
-  // Cria e baixa o arquivo
   const blob = new Blob([notaHTML], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -851,30 +824,24 @@ function addToCart(id){
   let p = products.find(x => x.id === id);
   if (!p) return;
 
-  // Verificar se produto está esgotado
-id = Number(id); // <-- AQUI É O SEGREDO
+  if (p.estoque <= 0) {
+    alert(`❌ ${p.nome} ESGOTADO!`);
+    return;
+  }
 
-// Verificar se produto está esgotado
-if (p.estoque <= 0) {
-  alert(`❌ PRODUTO ESGOTADO!`);
-  return;
-}
+  let itemNoCarrinho = cart.find(c => c.id === id);
+  let quantidadeTotal = itemNoCarrinho ? itemNoCarrinho.qtd + 1 : 1;
 
-let itemNoCarrinho = cart.find(c => c.id === id);
-let quantidadeTotal = itemNoCarrinho ? itemNoCarrinho.qtd + 1 : 1;
-
-// Verificar estoque insuficiente
-if (p.estoque < quantidadeTotal) {
-  alert(`❌ Estoque insuficiente!`);
-  return;
-}
+  if (p.estoque < quantidadeTotal) {
+    alert(`❌ Estoque insuficiente de ${p.nome}!`);
+    return;
+  }
   
-  // Adicionar ao carrinho
   if (itemNoCarrinho) {
     itemNoCarrinho.qtd++;
   } else {
     cart.push({
-      id: Number(p.id),
+      id: p.id,
       nome: p.nome,
       preco: p.preco,
       qtd: 1
@@ -926,15 +893,12 @@ function showCart(){
 function incQty(id){ 
   let item = cart.find(c => c.id === id); 
   if(item){ 
-  // verifica estoque
-id = Number(id); // <-- ISSO RESOLVE TUDO
+    let p = products.find(x => x.id === id);
 
-let p = products.find(x => x.id === id);
-
-if (p && p.estoque < (item.qtd + 1)) {
-  alert(`❌ Estoque insuficiente!`);
-  return;
-}  //fim 
+    if (p && p.estoque < (item.qtd + 1)) {
+      alert(`❌ Estoque insuficiente de ${p.nome}!`);
+      return;
+    }
  
     item.qtd++; 
     saveToStorage();
@@ -1196,8 +1160,22 @@ function showUploadComprovante(localizacaoData, descricao) {
     const reader = new FileReader();
     reader.onload = async function(e) {
       const comprovanteBase64 = e.target.result;
-  
 
+      await carregarEstoque();
+      
+      for (const item of cart) {
+        const produto = products.find(p => p.id === item.id);
+        if (produto && produto.estoque !== undefined) {
+          produto.estoque -= item.qtd;
+          console.log(`Descontado: ${item.qtd}x ${produto.nome} - Novo estoque: ${produto.estoque}`);
+          
+          if (produto.estoque <= 0) {
+            alertaEstoqueZerado(produto);
+          }
+        }
+      }
+      
+      await salvarEstoque();
       
       let codigoPedido = Math.floor(Math.random() * 900 + 100);
       let totalPedido = cart.reduce((total, item) => total + (item.preco * item.qtd), 0);
@@ -1232,7 +1210,6 @@ function showUploadComprovante(localizacaoData, descricao) {
       await sendTelegramNotification(pedido);
       
       alert(`✅ Pedido #${pedido.codigo} confirmado!\n📱 Notificação enviada para o administrador\n💰 Total: R$ ${totalPedido.toFixed(2)}\n📍 Entrega em: ${localizacao}\n\n💎 Use o botão "Nota Fiscal" para baixar seus pedidos!`);
-
 
       cart = [];
       saveToStorage();
@@ -1288,8 +1265,9 @@ window.openContact = openContact;
 window.goBack = goBack;
 window.showHelp = showHelp;
 window.showHelpCategory = showHelpCategory;
-window.baixarNotaFiscalIndividual = baixarNotaFiscalIndividual;
+window.baixarìNotaFiscalIndividual = baixarNotaFiscalIndividual;
 
+carregarEstoque();
 loadFromStorage();
 showHome();
 </script>
