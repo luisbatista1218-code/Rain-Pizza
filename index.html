@@ -996,7 +996,7 @@ function startCheckout(){
   }
   
   if(navigator.geolocation){
-    /*if(confirm('Deseja usar sua localização atual automática?\n\nO app vai detectar seu endereço completo.'))*/{
+    /*if(confirm('Deseja usar sua localização atual automática?\n\nO app vai detectar seu endereço completo.')){*/
       document.getElementById('view').innerHTML = '<div class="loading">📍 Detectando sua localização...</div>';
       
       navigator.geolocation.getCurrentPosition(
@@ -1017,9 +1017,9 @@ function startCheckout(){
           maximumAge: 0
         }
       );
-    } else {
+  /*  } else {
       showDadosEntrega({endereco: '', mapaUrl: ''});
-    }
+    }*/
   } else {
     showDadosEntrega({endereco: '', mapaUrl: ''});
   }
