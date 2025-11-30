@@ -1007,23 +1007,23 @@ function startCheckout(){
           const localizacaoData = await getEnderecoFromCoords(lat, lng);
           showDadosEntrega(localizacaoData);
         },
-        function(error){
-          console.log('Erro GPS:', error);
-          showDadosEntrega({endereco: '', mapaUrl: ''});
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-  /*  } else {
-      showDadosEntrega({endereco: '', mapaUrl: ''});
-    }*/
-  } else {
-    showDadosEntrega({endereco: '', mapaUrl: ''});
-  }
+
+ function(error){
+  console.log('Erro GPS:', error);
+  alert('❌ Localização obrigatória! Ative o GPS.');
+  showCart();
+},
+{
+  enableHighAccuracy: true,
+  timeout: 10000,
+  maximumAge: 0
 }
+);
+} else {
+  alert('❌ GPS não disponível! Ative a localização.');
+  showCart();
+}
+  }
 
 function showDadosEntrega(localizacaoData) {
   currentView = 'dados-entrega';
