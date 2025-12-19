@@ -357,8 +357,7 @@ async function atualizarMensagemTelegram(codigo, pedido) {
 
 async function alertaEstoqueZerado(produto) {
   const mensagem = `🚨 *ESTOQUE ZERADO!*\n\n` +
-    `📦 ${produto.nome} está ESGOTADO!\n` +
-    `💡 Use /repor ${produto.id} 10 para repor estoque`;
+    `📦 ${produto.nome} está ESGOTADO!\n`;
 
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
@@ -371,28 +370,6 @@ async function alertaEstoqueZerado(produto) {
   });
 }
 
-async function processarReporEstoque(message) {
-  const match = message.text.match(/\/repor (\d+) ([+-]?\d+)/);
-  if (match) {
-    const produtoId = parseInt(match[1]);
-    const quantidade = parseInt(match[2]);
-    
-    const produto = products.find(p => p.id === produtoId);
-    if (produto) {
-      produto.estoque += quantidade;
-      await salvarEstoque();
-      
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          chat_id: message.chat.id,
-          text: `✅ Estoque ajustado! ${produto.nome}: ${quantidade >= 0 ? '+' : ''}${quantidade} unidades\n📦 Novo estoque: ${produto.estoque}`
-        })
-      });
-    }
-  }
-  }
 
 async function processarListEstoque(message) {
   const planilha = await fetch("https://opensheet.elk.sh/146ByQiDYFXyv7ayDP3F99W5Rfzw4Z8ztSlBHbAh54oA/1")
